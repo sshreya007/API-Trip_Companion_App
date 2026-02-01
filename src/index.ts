@@ -27,7 +27,9 @@ import path from 'path';
 
 import { connectDB } from "./database/mongodb";
 import authRoutes from "./routes/auth.route";
-import profileRoutes from "./routes/profile.route"
+import profileRoutes from "./routes/profile.route";
+import adminRoutes from './routes/admin.route'; 
+import { errorHandler } from './errors/error-handler';
 
 dotenv.config(); // 👈 MUST be first
 
@@ -41,6 +43,9 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use("/api/auth", authRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/admin', adminRoutes); 
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5050;
 
