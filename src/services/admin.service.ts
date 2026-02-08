@@ -11,19 +11,17 @@ export class AdminService {
   }
 
   async createUser(userData: CreateUserDto, imagePath?: string) {
-    // Check if email already exists
     const existingUser = await this.adminRepository.checkEmailExists(userData.email);
     if (existingUser) {
       throw new HttpError(400, 'Email already exists');
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
     const newUser = {
       ...userData,
       password: hashedPassword,
-      image: imagePath || userData.image
+      profileImageUrl: imagePath || userData.profileImageUrl // ✅ CHANGED from image
     };
 
     return await this.adminRepository.createUser(newUser);
@@ -47,7 +45,6 @@ export class AdminService {
       throw new HttpError(404, 'User not found');
     }
 
-    // Check email uniqueness if email is being updated
     if (userData.email && userData.email !== (user as any).email) {
       const existingUser = await this.adminRepository.checkEmailExists(userData.email, id);
       if (existingUser) {
@@ -55,14 +52,13 @@ export class AdminService {
       }
     }
 
-    // Hash password if provided
     if (userData.password) {
       userData.password = await bcrypt.hash(userData.password, 10);
     }
 
     const updateData = {
       ...userData,
-      ...(imagePath && { image: imagePath })
+      ...(imagePath && { profileImageUrl: imagePath }) // ✅ CHANGED from image
     };
 
     return await this.adminRepository.updateUser(id, updateData);

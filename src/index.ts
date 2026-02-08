@@ -35,11 +35,17 @@ dotenv.config(); // 👈 MUST be first
 
 const app = express();
 
-app.use(cors());
+// ✅ FIXED CORS Configuration
+app.use(cors({
+  origin: 'http://localhost:3000',  // Your frontend URL
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
 
 app.use("/api/auth", authRoutes);
 app.use('/api/profile', profileRoutes);
@@ -55,3 +61,7 @@ connectDB().then(() => {
   });
 });
 
+//make app.ts and seperate app and sever then import app here in index
+//1 instal dependency then in nodemodules script add test then jest config then seperate app from index then make test setup.ts
+//integration testing 50 for extra marks unit testing
+//run by - npm test

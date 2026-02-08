@@ -103,6 +103,7 @@ export interface IUser extends Document {
   username: string;
   email: string;
   password: string;
+  role: 'user' | 'admin';
   
   // ✅ ADD THESE NEW FIELDS
   gender?: string;
@@ -137,6 +138,11 @@ const userSchema = new Schema<IUser>(
     password: { 
       type: String, 
       required: [true, 'Password is required'] 
+    },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user'
     },
     
     // ✅ ADD THESE NEW FIELDS

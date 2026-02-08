@@ -25,7 +25,9 @@ export class AuthService {
     const match = await bcrypt.compare(password, user.password);
     if (!match) throw new Error("Invalid credentials");
 
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "7d" });
+    // const freshUser=await repo.getUserByEmail(email);
+
+    const token = jwt.sign({ id: user._id , email:user.email, role:user.role}, JWT_SECRET, { expiresIn: "7d" });
 
     return { token, user };
   }
