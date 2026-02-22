@@ -33,6 +33,8 @@ import packageRoutes from './routes/package.route';
 import bookingRoutes from './routes/booking.route';
 import { errorHandler } from './errors/error-handler';
 
+import passwordResetRoutes from './routes/password-reset.route';
+
 dotenv.config(); // 👈 MUST be first
 
 const app = express();
@@ -50,6 +52,7 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use("/api/auth", authRoutes);
+app.use('/api/auth', passwordResetRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/admin', adminRoutes); 
 
