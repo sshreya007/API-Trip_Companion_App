@@ -15,39 +15,58 @@ export class BookingService {
   // Create booking
   async createBooking(bookingData: CreateBookingDto, userId: string) {
     try {
+      console.log('📝 BookingService: Starting booking creation');
+      console.log('📦 Package ID:', bookingData.packageId);
+      console.log('👤 User ID:', userId);
+
       // Check if package exists
       const pkg = await this.packageRepository.getPackageById(bookingData.packageId);
       if (!pkg) {
+        console.error('❌ Package not found:', bookingData.packageId);
         throw new HttpError(404, 'Package not found');
       }
 
+      console.log('✅ Package found:', pkg.title);
+
       // Check if package is active
       if (!pkg.isActive) {
+        console.error('❌ Package is not active');
         throw new HttpError(400, 'This package is currently unavailable');
       }
+
+      console.log('✅ Package is active');
 
       // Check availability
       const isAvailable = await this.packageRepository.checkAvailability(bookingData.packageId);
       if (!isAvailable) {
+        console.error('❌ Package is fully booked');
         throw new HttpError(400, 'Package is fully booked');
       }
+
+      console.log('✅ Package has availability');
 
       // Validate travel date
       const travelDate = new Date(bookingData.travelDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
+      console.log('📅 Travel date:', travelDate);
+      console.log('📅 Today:', today);
+
       if (travelDate < today) {
+        console.error('❌ Travel date is in the past');
         throw new HttpError(400, 'Travel date cannot be in the past');
       }
 
       if (travelDate < new Date(pkg.availability.startDate) || travelDate > new Date(pkg.availability.endDate)) {
+        console.error('❌ Travel date outside availability range');
         throw new HttpError(400, 'Travel date is outside package availability range');
       }
 
+      console.log('✅ Travel date is valid');
+
       // Calculate total price
       const basePrice = pkg.price.amount;
-      const totalTravelers = bookingData.numberOfTravelers.adults + bookingData.numberOfTravelers.children;
       let totalPrice = basePrice * bookingData.numberOfTravelers.adults;
       
       // Children typically get 50% discount
@@ -61,22 +80,33 @@ export class BookingService {
 
       // Apply discount if any
       if (bookingData.discountCode) {
-        // TODO: Implement discount code validation
-        // For now, just apply a flat 10% discount if code is provided
         const discountAmount = totalPrice * 0.1;
         totalPrice -= discountAmount;
       }
 
+      console.log('💰 Total price:', totalPrice);
+
       // Create booking
+      console.log('💾 Creating booking in repository...');
       const booking = await this.bookingRepository.createBooking(bookingData, userId, totalPrice);
+
+      console.log('✅ Booking created:', booking.bookingReference);
 
       // Increment booked count
       await this.packageRepository.incrementBookedCount(bookingData.packageId);
 
+      console.log('✅ Booking process completed successfully');
+
       return booking;
     } catch (error: any) {
+      console.error('❌ BookingService Error:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      
       if (error instanceof HttpError) throw error;
-      throw new HttpError(500, 'Failed to create booking');
+      
+      // ✅ FIX: Pass the actual error message instead of generic one
+      throw new HttpError(500, `Failed to create booking: ${error.message}`);
     }
   }
 
@@ -84,8 +114,9 @@ export class BookingService {
   async getUserBookings(userId: string, filters: BookingFilterDto) {
     try {
       return await this.bookingRepository.getUserBookings(userId, filters);
-    } catch (error) {
-      throw new HttpError(500, 'Failed to fetch bookings');
+    } catch (error: any) {
+      console.error('❌ Get user bookings error:', error);
+      throw new HttpError(500, `Failed to fetch bookings: ${error.message}`);
     }
   }
 
@@ -93,8 +124,9 @@ export class BookingService {
   async getAllBookings(filters: BookingFilterDto) {
     try {
       return await this.bookingRepository.getAllBookings(filters);
-    } catch (error) {
-      throw new HttpError(500, 'Failed to fetch bookings');
+    } catch (error: any) {
+      console.error('❌ Get all bookings error:', error);
+      throw new HttpError(500, `Failed to fetch bookings: ${error.message}`);
     }
   }
 
@@ -113,8 +145,9 @@ export class BookingService {
 
       return booking;
     } catch (error: any) {
+      console.error('❌ Get booking by ID error:', error);
       if (error instanceof HttpError) throw error;
-      throw new HttpError(500, 'Failed to fetch booking');
+      throw new HttpError(500, `Failed to fetch booking: ${error.message}`);
     }
   }
 
@@ -127,8 +160,9 @@ export class BookingService {
       }
       return booking;
     } catch (error: any) {
+      console.error('❌ Get booking by reference error:', error);
       if (error instanceof HttpError) throw error;
-      throw new HttpError(500, 'Failed to fetch booking');
+      throw new HttpError(500, `Failed to fetch booking: ${error.message}`);
     }
   }
 
@@ -153,8 +187,9 @@ export class BookingService {
       const updatedBooking = await this.bookingRepository.updateBooking(id, updateData);
       return updatedBooking;
     } catch (error: any) {
+      console.error('❌ Update booking error:', error);
       if (error instanceof HttpError) throw error;
-      throw new HttpError(500, 'Failed to update booking');
+      throw new HttpError(500, `Failed to update booking: ${error.message}`);
     }
   }
 
@@ -182,8 +217,9 @@ export class BookingService {
       const cancelledBooking = await this.bookingRepository.cancelBooking(id, reason);
       return cancelledBooking;
     } catch (error: any) {
+      console.error('❌ Cancel booking error:', error);
       if (error instanceof HttpError) throw error;
-      throw new HttpError(500, 'Failed to cancel booking');
+      throw new HttpError(500, `Failed to cancel booking: ${error.message}`);
     }
   }
 
@@ -202,8 +238,9 @@ export class BookingService {
       const confirmedBooking = await this.bookingRepository.confirmBooking(id);
       return confirmedBooking;
     } catch (error: any) {
+      console.error('❌ Confirm booking error:', error);
       if (error instanceof HttpError) throw error;
-      throw new HttpError(500, 'Failed to confirm booking');
+      throw new HttpError(500, `Failed to confirm booking: ${error.message}`);
     }
   }
 
@@ -222,8 +259,9 @@ export class BookingService {
       const completedBooking = await this.bookingRepository.completeBooking(id);
       return completedBooking;
     } catch (error: any) {
+      console.error('❌ Complete booking error:', error);
       if (error instanceof HttpError) throw error;
-      throw new HttpError(500, 'Failed to complete booking');
+      throw new HttpError(500, `Failed to complete booking: ${error.message}`);
     }
   }
 
@@ -264,8 +302,9 @@ export class BookingService {
 
       return updatedBooking;
     } catch (error: any) {
+      console.error('❌ Add review error:', error);
       if (error instanceof HttpError) throw error;
-      throw new HttpError(500, 'Failed to add review');
+      throw new HttpError(500, `Failed to add review: ${error.message}`);
     }
   }
 
@@ -273,8 +312,9 @@ export class BookingService {
   async getBookingStats(userId: string) {
     try {
       return await this.bookingRepository.getBookingStats(userId);
-    } catch (error) {
-      throw new HttpError(500, 'Failed to fetch booking statistics');
+    } catch (error: any) {
+      console.error('❌ Get booking stats error:', error);
+      throw new HttpError(500, `Failed to fetch booking statistics: ${error.message}`);
     }
   }
 }

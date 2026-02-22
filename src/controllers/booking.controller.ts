@@ -10,22 +10,43 @@ export class BookingController {
   }
 
   // Create booking
-  createBooking = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userId = req.user?.id as string; // ✅ FIXED
-      const bookingData: CreateBookingDto = req.body;
+  // createBooking = async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     const userId = req.user?.id as string; // ✅ FIXED
+  //     const bookingData: CreateBookingDto = req.body;
 
-      const booking = await this.bookingService.createBooking(bookingData, userId);
+  //     const booking = await this.bookingService.createBooking(bookingData, userId);
 
-      res.status(201).json({
-        success: true,
-        message: 'Booking created successfully',
-        data: booking
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
+  //     res.status(201).json({
+  //       success: true,
+  //       message: 'Booking created successfully',
+  //       data: booking
+  //     });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
+  // Create booking
+createBooking = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id as string;
+    const bookingData: CreateBookingDto = req.body;
+
+    console.log('📝 Received booking data:', JSON.stringify(bookingData, null, 2));
+    console.log('👤 User ID:', userId);
+
+    const booking = await this.bookingService.createBooking(bookingData, userId);
+
+    res.status(201).json({
+      success: true,
+      message: 'Booking created successfully',
+      data: booking
+    });
+  } catch (error: any) {
+    console.error('❌ Booking creation error:', error);
+    next(error);
+  }
+};
 
   // Get user bookings
   getUserBookings = async (req: Request, res: Response, next: NextFunction) => {

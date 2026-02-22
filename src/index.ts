@@ -29,6 +29,8 @@ import { connectDB } from "./database/mongodb";
 import authRoutes from "./routes/auth.route";
 import profileRoutes from "./routes/profile.route";
 import adminRoutes from './routes/admin.route'; 
+import packageRoutes from './routes/package.route'; 
+import bookingRoutes from './routes/booking.route';
 import { errorHandler } from './errors/error-handler';
 
 dotenv.config(); // 👈 MUST be first
@@ -50,6 +52,9 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use("/api/auth", authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/admin', adminRoutes); 
+
+app.use('/api/packages', packageRoutes); 
+app.use('/api/bookings', bookingRoutes);
 
 app.use(errorHandler);
 

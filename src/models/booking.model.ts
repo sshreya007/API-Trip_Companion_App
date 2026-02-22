@@ -134,12 +134,13 @@ const bookingSchema = new Schema<IBooking>(
   }
 );
 
-// ✅ FIXED: Generate unique booking reference before saving
-bookingSchema.pre('save', async function() {
+// ✅ FIX: Generate unique booking reference BEFORE validation runs
+bookingSchema.pre('validate', function(next) {
   if (this.isNew && !this.bookingReference) {
     this.bookingReference = `BK${Date.now()}${Math.floor(Math.random() * 1000)}`;
+    console.log('✅ Generated booking reference:', this.bookingReference);
   }
-  
+  ;
 });
 
 export const Booking = mongoose.model<IBooking>('Booking', bookingSchema);
