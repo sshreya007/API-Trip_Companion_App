@@ -95,6 +95,7 @@
 
 // export const User = mongoose.model("User", userSchema);
 
+import bcrypt from 'bcryptjs/umd/types';
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IUser extends Document {
@@ -105,14 +106,18 @@ export interface IUser extends Document {
   password: string;
   role: 'user' | 'admin';
   
-  // ✅ ADD THESE NEW FIELDS
+  
   gender?: string;
   age?: number;
   profileImageUrl?: string;
   bio?: string;
   
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const userSchema = new Schema<IUser>(
@@ -145,7 +150,7 @@ const userSchema = new Schema<IUser>(
       default: 'user'
     },
     
-    // ✅ ADD THESE NEW FIELDS
+    
     gender: { 
       type: String, 
       enum: ['Male', 'Female', 'Other'],
@@ -166,12 +171,34 @@ const userSchema = new Schema<IUser>(
       maxlength: 500,
       default: null 
     },
+    resetPasswordToken: {
+      type: String
+    },
+    resetPasswordExpires: {
+      type: Date
+    }
     
   },
   { 
     timestamps: true 
   }
 );
+
+// Hash password before saving
+userSchema.pre('save', async function () {
+  // Only hash if password is modified
+  if (!this.isModified('password')) {
+    return;
+  }
+  
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+// Compare password method
+userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
 
 
