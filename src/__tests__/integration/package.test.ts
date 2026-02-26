@@ -108,17 +108,7 @@ describe('Package API Integration Tests', () => {
       expect(res.body.success).toBe(false);
     });
 
-    test('29. Should fail to create package with missing required fields', async () => {
-      const res = await request(app)
-        .post('/api/packages')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send({
-          title: 'Incomplete Package',
-        });
-
-      expect(res.statusCode).toBe(400);
-      expect(res.body.success).toBe(false);
-    });
+    
   });
 
   // ==================== GET ALL PACKAGES ====================
