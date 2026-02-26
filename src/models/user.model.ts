@@ -95,7 +95,8 @@
 
 // export const User = mongoose.model("User", userSchema);
 
-import bcrypt from 'bcryptjs/umd/types';
+// import bcrypt from 'bcryptjs/umd/types';
+import bcrypt from 'bcrypt';
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IUser extends Document {

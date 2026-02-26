@@ -1,4 +1,7 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export class EmailService {
   private transporter;
@@ -220,4 +223,6 @@ export class EmailService {
       console.error('❌ Error sending confirmation email:', error);
     }
   }
+
+  
 }
