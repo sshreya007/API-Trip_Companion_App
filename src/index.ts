@@ -42,7 +42,3 @@ const startServer = async () => {
 
 startServer();
 
-//make app.ts and seperate app and sever then import app here in index
-//1 instal dependency then in nodemodules script add test then jest config then seperate app from index then make test setup.ts
-//integration testing 50 for extra marks unit testing
-//run by - npm test
